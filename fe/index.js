@@ -55,7 +55,7 @@ async function getCredentials() {
   }
 }
 
-export async function extractTwitterData() {
+ async function extractTwitterData() {
   let driver;
   try {
     const { email, username, password } = await getCredentials();
