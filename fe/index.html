@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trending Topics</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f4f8;
+        gap:14px;
+      }
+      #content {
+        margin-top: 20px;
+      }
+      .hidden {
+        display: none;
+      }
+      a {
+        color: #007bff;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .json-box {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        white-space: pre-wrap;
+        margin-top: 20px;
+        width: 90%;
+        max-width: 600px;
+      }
+      .form-container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 400px; 
+       
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      input,
+      button {
+        margin-top: 15px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .success-message {
+        color: green;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome!</h1>
+    <div class="form-container" id="formContainer">
+      <h2>Login Form</h2>
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input
+          type="text"
+          id="email"
+          name="email"
+          required
+          placeholder="Enter your email"
+        />
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          required
+          placeholder="Enter your username"
+        />
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          placeholder="Enter your password"
+        />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+    <div class="success-message hidden" id="successMessage">
+      Credentials saved successfully.
+    </div>
+
+    <a onclick="fetchData()">Click here to run the script.</a>
+
+    <div id="content" class="hidden">
+      <p>
+        These are the most happening topics as on <span id="timestamp"></span>
+      </p>
+      <ul id="topicList"></ul>
+      <p>
+        The IP address used for this query was
+        <span id="ipAddress">XXX.XXX.XXX.XXX</span>.
+      </p>
+      <p>Here’s a JSON extract of this record from the MongoDB:</p>
+      <div class="json-box" id="jsonExtract"></div>
+
+      <br />
+      <a onclick="fetchData()">Click here to run the query again.</a>
+    </div>
+
+    <script>
+      // Handle form submission
+
+      
+
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault(); // Prevent form refresh
+
+          const email = document.getElementById("email").value;
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          const data = { email, username, password };
+
+          try {
+            const response = await fetch(
+              "http://localhost:4000/saveCredentials",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              document.getElementById("formContainer").classList.add("hidden");
+              document
+                .getElementById("successMessage")
+                .classList.remove("hidden");
+              console.log("done");
+              document.getElementById("loginForm").reset();
+            } else {
+              throw new Error("Failed to save credentials.");
+            }
+          } catch (error) {
+            alert("Error saving data.");
+            console.error("Error:", error);
+          }
+        });
+
+      // Fetch trending topics data
+      async function fetchData() {
+        try {
+          const response = await fetch("http://localhost:4000/getData");
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch data.");
+          }
+
+          const data = await response.json();
+          console.log(data); // Debugging log to view structure
+
+          const ip = "192.168.1.101"; // Mock IP
+          const timestamp = new Date().toLocaleString();
+
+          document.getElementById("content").classList.remove("hidden");
+          document.getElementById("timestamp").innerText = timestamp;
+          document.getElementById("ipAddress").innerText = ip;
+
+          const topicList = document.getElementById("topicList");
+          topicList.innerHTML = ""; // Clear list
+
+          data.forEach((item) => {
+            const li = document.createElement("li");
+            li.innerText = `Name of ${item.topic}`;
+            topicList.appendChild(li);
+          });
+
+          document.getElementById("jsonExtract").innerText = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        } catch (error) {
+          alert("Error fetching data. Please try again.");
+          console.error("Error:", error);
+        }
+      }
+    </script>
+  </body>
+</html>
