@@ -60,7 +60,14 @@ This project scrapes trending topics on Twitter using Selenium. The backend is b
    - The credentials are stored in the backend directory but **not in the database**.
 
 5. **Run Selenium Script**:
-   - After submitting the form, Selenium will automatically run and fetch trending topics in India.
+   -Navigate to the frontend directory:
+   
+   -cd frontend
+   ```bash
+   -npm run dev
+   ```
+This will start a local development server for the frontend.
+Selenium will automatically run in the background to log in to Twitter and fetch trending topics in India.
 
 ## Notes
 - Ensure your Chrome WebDriver is compatible with the version of Chrome installed.
