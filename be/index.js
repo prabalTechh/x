@@ -16,7 +16,6 @@ mongoose
   .connect(process.env.SECRET)
   .then(console.log("added"))
   .catch((error) => console.log(error));
-  
 
 // Save credentials to file
 app.post("/saveCredentials", (req, res) => {
@@ -45,20 +44,20 @@ app.post("/trending", async (req, res) => {
 
     // Input validation
     if (!Array.isArray(data)) {
-      return res.status(400).json({ 
-        error: "Request body must be an array" 
+      return res.status(400).json({
+        error: "Request body must be an array",
       });
     }
 
     if (data.length === 0) {
-      return res.status(400).json({ 
-        error: "Array cannot be empty" 
+      return res.status(400).json({
+        error: "Array cannot be empty",
       });
     }
 
     if (data.length % 3 !== 0) {
-      return res.status(400).json({ 
-        error: "Data must be in multiples of three" 
+      return res.status(400).json({
+        error: "Data must be in multiples of three",
       });
     }
 
@@ -71,13 +70,13 @@ app.post("/trending", async (req, res) => {
         topic: data[i],
         posts: data[i + 1],
         category: data[i + 2],
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Validate required fields
       if (!topicObj.topic || !topicObj.posts || !topicObj.category) {
         return res.status(400).json({
-          error: `Missing required fields in triplet starting at index ${i}`
+          error: `Missing required fields in triplet starting at index ${i}`,
         });
       }
 
@@ -90,36 +89,27 @@ app.post("/trending", async (req, res) => {
 
     res.status(201).json({
       message: "Trending topics successfully stored",
-      count: trendingTopics.length
+      count: trendingTopics.length,
     });
-
   } catch (error) {
     console.error("Error saving trending topics:", error);
-    
+
     // Send appropriate error message based on error type
-    const errorMessage = error.name === 'ValidationError' 
-      ? 'Invalid data format'
-      : 'Failed to store data';
-      
-    res.status(500).json({ 
+    const errorMessage =
+      error.name === "ValidationError"
+        ? "Invalid data format"
+        : "Failed to store data";
+
+    res.status(500).json({
       error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 });
 
-
 app.get("/getData", async (req, res) => {
   try {
-    // Execute the script
-    exec("npm run dev", (error, stdout, stderr) => {
-      if (error) console.error(`Error: ${error.message}`);
-      if (stderr) console.error(`Stderr: ${stderr}`);
-      console.log(`Script Output: ${stdout}`);
-    });
-
-    // Fetch data from the database
-   
     const allData = await TrendingTopic.find({});
     res.status(200).json(allData);
   } catch (error) {
@@ -127,8 +117,3 @@ app.get("/getData", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch data." });
   }
 });
-
-
-
-
-
