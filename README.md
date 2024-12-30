@@ -41,7 +41,7 @@ This project scrapes trending topics on Twitter using Selenium. The backend is b
 ## How to Use
 1. **Start the Backend**:
    ```bash
-   npm start
+   npm run dev
    ```
 2. **Open Frontend**:
    - Open `index.html` manually in your browser from the `frontend` directory **while the backend is running**.
