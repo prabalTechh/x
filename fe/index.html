@@ -81,8 +81,12 @@
         margin-top: 20px;
       }
     </style>
+    
   </head>
   <body>
+    <script src="./index.js">
+      
+    </script>
     <h1>Welcome!</h1>
     <div class="form-container" id="formContainer">
       <h2>Login Form</h2>
@@ -137,7 +141,7 @@
     </div>
 
     <script>
-      // Handle form submission
+      
 
       
 
@@ -179,6 +183,13 @@
           }
         });
 
+
+        //run the selinium script
+
+        async function runScript(){
+
+        }
+
       // Fetch trending topics data
       async function fetchData() {
         try {
@@ -189,7 +200,7 @@
           }
 
           const data = await response.json();
-          console.log(data); // Debugging log to view structure
+          console.log(data);
 
           const ip = "192.168.1.101"; // Mock IP
           const timestamp = new Date().toLocaleString();

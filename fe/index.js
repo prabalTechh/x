@@ -55,7 +55,7 @@ async function getCredentials() {
   }
 }
 
- async function extractTwitterData() {
+async function extractTwitterData() {
   let driver;
   try {
     const { email, username, password } = await getCredentials();
@@ -71,7 +71,7 @@ async function getCredentials() {
     await driver.get("https://x.com/login");
     await driver.sleep(3000); // Initial load wait
 
-    // Login process with better error handling
+    // Login process with conditional username handling
     const emailField = await driver.wait(
       until.elementLocated(By.css('input[name="text"]')),
       20000
@@ -85,19 +85,26 @@ async function getCredentials() {
     await nextButton.click();
     await driver.sleep(2000);
 
-    const usernameField = await driver.wait(
-      until.elementLocated(By.css('input[name="text"]')),
-      10000
-    );
-    await usernameField.clear();
-    await usernameField.sendKeys(username);
+    try {
+      // Attempt to locate and handle the username field
+      const usernameField = await driver.wait(
+        until.elementLocated(By.css('input[name="text"]')),
+        5000 // Set a short timeout for the username field
+      );
+      await usernameField.clear();
+      await usernameField.sendKeys(username);
 
-    const nextButtonUsername = await driver.findElement(
-      By.xpath('//span[text()="Next"]')
-    );
-    await nextButtonUsername.click();
-    await driver.sleep(2000);
+      const nextButtonUsername = await driver.findElement(
+        By.xpath('//span[text()="Next"]')
+      );
+      await nextButtonUsername.click();
+      await driver.sleep(2000);
+    } catch (error) {
+      // If username field is not found, log the info and proceed
+      console.log("Username step skipped. Proceeding to password...");
+    }
 
+    // Handle the password field
     const passwordField = await driver.wait(
       until.elementLocated(By.css('input[name="password"]')),
       10000
@@ -109,7 +116,6 @@ async function getCredentials() {
       By.xpath('//span[text()="Log in"]')
     );
     await submitButton.click();
-
     // Wait for the trending section with timeout
     const trendingSection = await driver.wait(
       until.elementLocated(By.css('div[aria-label="Timeline: Trending now"]')),

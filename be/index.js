@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv/config";
 import TrendingTopic from "./db/db.js";
+import { exec } from "child_process";
 
 const app = express();
 app.use(cors());
@@ -15,6 +16,7 @@ mongoose
   .connect(process.env.SECRET)
   .then(console.log("added"))
   .catch((error) => console.log(error));
+  
 
 // Save credentials to file
 app.post("/saveCredentials", (req, res) => {
@@ -107,13 +109,26 @@ app.post("/trending", async (req, res) => {
 });
 
 
-app.get("/getData" , async (req,res)=>{
-
+app.get("/getData", async (req, res) => {
   try {
-    const allData = await TrendingTopic.find({});
-    res.json(allData);
-  } catch (error) {
-    res.json(error);
-  }
+    // Execute the script
+    exec("npm run dev", (error, stdout, stderr) => {
+      if (error) console.error(`Error: ${error.message}`);
+      if (stderr) console.error(`Stderr: ${stderr}`);
+      console.log(`Script Output: ${stdout}`);
+    });
 
-})
+    // Fetch data from the database
+   
+    const allData = await TrendingTopic.find({});
+    res.status(200).json(allData);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data." });
+  }
+});
+
+
+
+
+
