@@ -14,7 +14,7 @@
         align-items: center;
         justify-content: center;
         background-color: #f0f4f8;
-        gap:14px;
+        gap: 14px;
       }
       #content {
         margin-top: 20px;
@@ -50,8 +50,7 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        max-width: 400px; 
-       
+        max-width: 400px;
       }
       form {
         display: flex;
@@ -81,19 +80,15 @@
         margin-top: 20px;
       }
     </style>
-    
   </head>
   <body>
-    <script src="./index.js">
-      
-    </script>
     <h1>Welcome!</h1>
     <div class="form-container" id="formContainer">
       <h2>Login Form</h2>
       <form id="loginForm">
         <label for="email">Email</label>
         <input
-          type="text"
+          type="email"
           id="email"
           name="email"
           required
@@ -141,15 +136,10 @@
     </div>
 
     <script>
-      
-
-      
-
-
       document
         .getElementById("loginForm")
         .addEventListener("submit", async function (event) {
-          event.preventDefault(); // Prevent form refresh
+          event.preventDefault();
 
           const email = document.getElementById("email").value;
           const username = document.getElementById("username").value;
@@ -172,7 +162,6 @@
               document
                 .getElementById("successMessage")
                 .classList.remove("hidden");
-              console.log("done");
               document.getElementById("loginForm").reset();
             } else {
               throw new Error("Failed to save credentials.");
@@ -183,24 +172,17 @@
           }
         });
 
-
-        //run the selinium script
-
-        async function runScript(){
-
-        }
-
-      // Fetch trending topics data
       async function fetchData() {
         try {
-          const response = await fetch("http://localhost:4000/getData");
+          const response = await fetch(
+            "http://localhost:4000/extractTwitterData"
+          );
 
           if (!response.ok) {
             throw new Error("Failed to fetch data.");
           }
 
           const data = await response.json();
-          console.log(data);
 
           const ip = "192.168.1.101"; // Mock IP
           const timestamp = new Date().toLocaleString();
@@ -210,7 +192,7 @@
           document.getElementById("ipAddress").innerText = ip;
 
           const topicList = document.getElementById("topicList");
-          topicList.innerHTML = ""; // Clear list
+          topicList.innerHTML = "";
 
           data.forEach((item) => {
             const li = document.createElement("li");

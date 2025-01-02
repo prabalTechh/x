@@ -1,158 +1,157 @@
-const { Builder, By, until } = require("selenium-webdriver");
-require("dotenv/config");
+// const { Builder, By, until } = require("selenium-webdriver");
+// require("dotenv/config");
 
-async function transformDataToObject(trendingElements) {
-  try {
-    // Create an array to store the triplets
-    const processedData = [];
 
-    // Process each trending topic element
-    for (let i = 3; i < trendingElements.length; i += 3) {
-      // Skip if we don't have a complete triplet
-      if (i + 2 >= trendingElements.length) break;
+// async function transformDataToObject(trendingElements) {
+//   try {
+//     // Create an array to store the triplets
+//     const processedData = [];
 
-      // Extract the text from each element
-      const topic = await trendingElements[i].getText();
-      const posts = await trendingElements[i + 1].getText();
-      const category = await trendingElements[i + 2].getText();
+//     // Process each trending topic element
+//     for (let i = 3; i < trendingElements.length; i += 3) {
+//       // Skip if we don't have a complete triplet
+//       if (i + 2 >= trendingElements.length) break;
 
-      // Add the triplet to our processed data
-      processedData.push(topic, posts, category);
-    }
+//       // Extract the text from each element
+//       const topic = await trendingElements[i].getText();
+//       const posts = await trendingElements[i + 1].getText();
+//       const category = await trendingElements[i + 2].getText();
 
-    console.log("Data being sent:", processedData);
+//       // Add the triplet to our processed data
+//       processedData.push(topic, posts, category);
+//     }
 
-    const response = await fetch("http://localhost:4000/trending", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(processedData),
-    });
+//     console.log("Data being sent:", processedData);
 
-    if (response.ok) {
-      const result = await response.json();
-      console.log("Data sent successfully:", result);
-    } else {
-      const errorDetails = await response.json();
-      console.error("Server error:", errorDetails);
-    }
-  } catch (error) {
-    console.error("Error while processing or sending data:", error);
-  }
-}
+//     const response = await fetch("http://localhost:4000/trending", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(processedData),
+//     });
 
-async function getCredentials() {
-  try {
-    const response = await fetch("http://localhost:4000/getCredentials");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching credentials:", error);
-    throw error;
-  }
-}
+//     if (response.ok) {
+//       const result = await response.json();
+//       console.log("Data sent successfully:", result);
+//     } else {
+//       const errorDetails = await response.json();
+//       console.error("Server error:", errorDetails);
+//     }
+//   } catch (error) {
+//     console.error("Error while processing or sending data:", error);
+//   }
+// }
 
-async function extractTwitterData() {
-  let driver;
-  try {
-    const { email, username, password } = await getCredentials();
+// async function getCredentials() {
+//   try {
+//     const response = await fetch("http://localhost:4000/getCredentials");
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error("Error fetching credentials:", error);
+//     throw error;
+//   }
+// }
 
-    // Input validation
-    if (!email || !username || !password) {
-      throw new Error("Missing required credentials");
-    }
+// async function extractTwitterData() {
+//   let driver;
+//   try {
+//     const { email, username, password } = await getCredentials();
 
-    driver = await new Builder().forBrowser("chrome").build();
+//     // Input validation
+//     if (!email || !username || !password) {
+//       throw new Error("Missing required credentials");
+//     }
 
-    // Navigate to Twitter
-    await driver.get("https://x.com/login");
-    await driver.sleep(3000); // Initial load wait
+//     driver = await new Builder().forBrowser("chrome").build();
 
-    // Login process with conditional username handling
-    const emailField = await driver.wait(
-      until.elementLocated(By.css('input[name="text"]')),
-      20000
-    );
-    await emailField.clear();
-    await emailField.sendKeys(email);
+//     // Navigate to Twitter
+//     await driver.get("https://x.com/login");
+//     await driver.sleep(3000); // Initial load wait
 
-    const nextButton = await driver.findElement(
-      By.xpath('//span[text()="Next"]')
-    );
-    await nextButton.click();
-    await driver.sleep(2000);
+//     // Login process with conditional username handling
+//     const emailField = await driver.wait(
+//       until.elementLocated(By.css('input[name="text"]')),
+//       20000
+//     );
+//     await emailField.clear();
+//     await emailField.sendKeys(email);
 
-    try {
-      // Attempt to locate and handle the username field
-      const usernameField = await driver.wait(
-        until.elementLocated(By.css('input[name="text"]')),
-        5000 // Set a short timeout for the username field
-      );
-      await usernameField.clear();
-      await usernameField.sendKeys(username);
+//     const nextButton = await driver.findElement(
+//       By.xpath('//span[text()="Next"]')
+//     );
+//     await nextButton.click();
+//     await driver.sleep(2000);
 
-      const nextButtonUsername = await driver.findElement(
-        By.xpath('//span[text()="Next"]')
-      );
-      await nextButtonUsername.click();
-      await driver.sleep(2000);
-    } catch (error) {
-      // If username field is not found, log the info and proceed
-      console.log("Username step skipped. Proceeding to password...");
-    }
+//     try {
+//       // Attempt to locate and handle the username field
+//       const usernameField = await driver.wait(
+//         until.elementLocated(By.css('input[name="text"]')),
+//         5000 
+//       );
+//       await usernameField.clear();
+//       await usernameField.sendKeys(username);
 
-    // Handle the password field
-    const passwordField = await driver.wait(
-      until.elementLocated(By.css('input[name="password"]')),
-      10000
-    );
-    await passwordField.clear();
-    await passwordField.sendKeys(password);
+//       const nextButtonUsername = await driver.findElement(
+//         By.xpath('//span[text()="Next"]')
+//       );
+//       await nextButtonUsername.click();
+//       await driver.sleep(2000);
+//     } catch (error) {
+    
+//       console.log("Username step skipped. Proceeding to password...");
+//     }
 
-    const submitButton = await driver.findElement(
-      By.xpath('//span[text()="Log in"]')
-    );
-    await submitButton.click();
-    // Wait for the trending section with timeout
-    const trendingSection = await driver.wait(
-      until.elementLocated(By.css('div[aria-label="Timeline: Trending now"]')),
-      30000
-    );
+//     // Handle the password field
+//     const passwordField = await driver.wait(
+//       until.elementLocated(By.css('input[name="password"]')),
+//       10000
+//     );
+//     await passwordField.clear();
+//     await passwordField.sendKeys(password);
 
-    // Wait for trending elements to be populated
-    await driver.sleep(5000);
+//     const submitButton = await driver.findElement(
+//       By.xpath('//span[text()="Log in"]')
+//     );
+//     await submitButton.click();
+//     // Wait for the trending section with timeout
+//     const trendingSection = await driver.wait(
+//       until.elementLocated(By.css('div[aria-label="Timeline: Trending now"]')),
+//       30000
+//     );
 
-    // Get all trending elements including topic, posts count, and category
-    const trendingElements = await trendingSection.findElements(
-      By.css('div[dir="ltr"] > span')
-    );
+//     // Wait for trending elements to be populated
+//     await driver.sleep(5000);
 
-    if (trendingElements.length === 0) {
-      throw new Error("No trending topics found");
-    }
+//     // Get all trending elements including topic, posts count, and category
+//     const trendingElements = await trendingSection.findElements(
+//       By.css('div[dir="ltr"] > span')
+//     );
 
-    // Process and send the data
-    await transformDataToObject(trendingElements);
-  } catch (error) {
-    console.error("Error during extraction:", error);
-    throw error;
-  } finally {
-    // Always close the browser
-    if (driver) {
-      await driver.quit();
-    }
-  }
-}
+//     if (trendingElements.length === 0) {
+//       throw new Error("No trending topics found");
+//     }
+
+//     await transformDataToObject(trendingElements);
+//   } catch (error) {
+//     console.error("Error during extraction:", error);
+//     throw error;
+//   } finally {
+//     if (driver) {
+//       await driver.quit();
+//     }
+//   }
+// }
 
 // Execute the script
-(async () => {
-  try {
-    await extractTwitterData();
-  } catch (error) {
-    console.error("Script execution failed:", error);
-    process.exit(1);
-  }
-})();
+// (async () => {
+//   try {
+//     await extractTwitterData();
+//   } catch (error) {
+//     console.error("Script execution failed:", error);
+//     process.exit(1);
+//   }
+// })();
